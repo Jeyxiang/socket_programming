@@ -5,7 +5,7 @@ import socket
 import re
 
 def client_bulletin(host,serverPort):
-    host = socket.gethostname()  # as both code is running on same pc
+    host = socket.gethostname()  # If both code is running on same pc
     port = serverPort  # socket server port number
     running = True
 
@@ -15,37 +15,37 @@ def client_bulletin(host,serverPort):
     message = input(" Please enter a message: ")  # take input
 
     while running:
-        print("client: " + message) # client message
+        print("client: " + message) # Print Client message
         clientSocket.send(message.encode())  # send message to server
+
         if message.lower().strip() == "post":
             runningPost = True
-            newString = "POST\n"
             while runningPost:
                 message1 = input("Please enter a POST message: ")
-                newString += message1 + "\n"
-                print(newString)
+                clientSocket.send(message1.encode())
                 if message1 == "#":
                     print('break POST while loop')
+                    # Server should be acknowledge with OK
                     runningPost = False
 
-            clientSocket.send(newString.encode())
-            #print("reached")
+
         data = clientSocket.recv(4096).decode()  # receive response
 
-        print(data)  # show in terminal
-        extract_data = re.split('server:/*', data)[-1]
+        print(data)  # show server message
+        extract_data = re.split('server:/*', data)[-1] # extract message from server
 
+        # Client initiates QUIT
         if message.lower().strip() == 'quit':
             if extract_data.lower().strip() == "ok":
                 # Server has acknowledged, close connection
                 running = False
                 break
         message = input("Please enter a message: ")  # again take input
-        print("yo")
 
-    print('While loop ended!')
+    print('Client closing connection')
     clientSocket.close()  # close the connection
 
 if __name__ == '__main__':
-    #portNo = input("Please enter port number: ")
-    client_bulletin("144.214.115.164",1200)
+    #ipAddress = input("Please enter host address: ")
+    portNo = 1200
+    client_bulletin("placeHolder",portNo)
