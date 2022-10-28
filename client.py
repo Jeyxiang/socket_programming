@@ -4,30 +4,33 @@ from socketserver import BaseRequestHandler, TCPServer
 import socket
 import re
 
-def client_bulletin(host,serverPort):
-    host = socket.gethostname()  # If both code is running on same pc
-    port = serverPort  # socket server port number
+def client_bulletin():
+    # Input server IP and port
+    # host = input("Please enter server IP address: ")
+    serverPort = int(input("Please enter server port number: ")) # server port number
+    host = socket.gethostname()  # PLACEHOLDER - If both code is running on same pc
+
+    # instantiate the TCP socket for server
+    clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    clientSocket.connect((host, serverPort))
+    print(f"Successfully connected to {host}, port number {serverPort}.")
+
+    # executing commands
     running = True
-
-    clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM) #instantiate the TCP socket for server
-    clientSocket.connect((host, serverPort)) #connect to the server
-    print(f"Connected to {host}")
-    #message = input(" Please enter a message: ")  # take input
-
     while running:
-        message = input("Please enter a message: ")  # again take input
+        message = input("Please enter a command: ")  # take input
         print("client: " + message) # Print Client message
         clientSocket.send(message.encode())  # send message to server
 
         # Client initiates POST command
-        if message.lower().strip() == "post":
+        if message.strip() == "POST":
             runningPost = True
+            print("client: welcome to socket programming")
             while runningPost:
                 message1 = input("client: Please enter a POST message: ")
                 clientSocket.send(message1.encode())
                 if message1 == "#":
-                    # Server should be acknowledge with OK
-                    data = clientSocket.recv(4096).decode()
+                    data = clientSocket.recv(4096).decode() # receive response
                     print(data)
                     extract_data = re.split('server:/*', data)[-1]  # extract message from server
                     if extract_data.lower().strip() == "ok":
@@ -36,19 +39,19 @@ def client_bulletin(host,serverPort):
                         runningPost = False
 
         # Client initates READ command
-        elif message.lower().strip() == "read":
+        elif message.strip() == "READ":
             # client should wait and listen
             in_read = True
             while in_read:
                 data = clientSocket.recv(4096).decode()
                 print(data)
-                extract_data = re.split('server:/*', data)[-1]  # extract message from server
+                extract_data = re.split('server:/*', data)[-1]
                 if extract_data.strip() == '#':
                     print("client: End of READ")
-                    in_read = False # end reading
+                    in_read = False
 
         # Client initiates QUIT
-        elif message.lower().strip() == 'quit':
+        elif message.strip() == 'QUIT':
             data = clientSocket.recv(4096).decode()  # receive response
             print(data)  # show server message
             extract_data = re.split('server:/*', data)[-1]  # extract message from server
@@ -58,7 +61,8 @@ def client_bulletin(host,serverPort):
                 break
 
         else:
-            data = clientSocket.recv(4096).decode()  # receive response
+            # Error handling
+            data = clientSocket.recv(4096).decode()
             print(data)  # show server message
 
 
@@ -66,6 +70,4 @@ def client_bulletin(host,serverPort):
     clientSocket.close()  # close the connection
 
 if __name__ == '__main__':
-    #ipAddress = input("Please enter host address: ")
-    portNo = 1200
-    client_bulletin("placeHolder",portNo)
+    client_bulletin()
