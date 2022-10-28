@@ -11,38 +11,58 @@ def client_bulletin(host,serverPort):
 
     clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM) #instantiate the TCP socket for server
     clientSocket.connect((host, serverPort)) #connect to the server
-
-    message = input(" Please enter a message: ")  # take input
+    print(f"Connected to {host}")
+    #message = input(" Please enter a message: ")  # take input
 
     while running:
+        message = input("Please enter a message: ")  # again take input
         print("client: " + message) # Print Client message
         clientSocket.send(message.encode())  # send message to server
 
+        # Client initiates POST command
         if message.lower().strip() == "post":
             runningPost = True
             while runningPost:
-                message1 = input("Please enter a POST message: ")
+                message1 = input("client: Please enter a POST message: ")
                 clientSocket.send(message1.encode())
                 if message1 == "#":
-                    print('break POST while loop')
                     # Server should be acknowledge with OK
-                    runningPost = False
+                    data = clientSocket.recv(4096).decode()
+                    print(data)
+                    extract_data = re.split('server:/*', data)[-1]  # extract message from server
+                    if extract_data.lower().strip() == "ok":
+                        # Server has acknowledged, close post command
+                        print('client: END OF POST MESSAGE')
+                        runningPost = False
 
-
-        data = clientSocket.recv(4096).decode()  # receive response
-
-        print(data)  # show server message
-        extract_data = re.split('server:/*', data)[-1] # extract message from server
+        # Client initates READ command
+        elif message.lower().strip() == "read":
+            # client should wait and listen
+            in_read = True
+            while in_read:
+                data = clientSocket.recv(4096).decode()
+                print(data)
+                extract_data = re.split('server:/*', data)[-1]  # extract message from server
+                if extract_data.strip() == '#':
+                    print("client: End of READ")
+                    in_read = False # end reading
 
         # Client initiates QUIT
-        if message.lower().strip() == 'quit':
+        elif message.lower().strip() == 'quit':
+            data = clientSocket.recv(4096).decode()  # receive response
+            print(data)  # show server message
+            extract_data = re.split('server:/*', data)[-1]  # extract message from server
             if extract_data.lower().strip() == "ok":
                 # Server has acknowledged, close connection
                 running = False
                 break
-        message = input("Please enter a message: ")  # again take input
 
-    print('Client closing connection')
+        else:
+            data = clientSocket.recv(4096).decode()  # receive response
+            print(data)  # show server message
+
+
+    print(f'Client closing connection with {host}')
     clientSocket.close()  # close the connection
 
 if __name__ == '__main__':

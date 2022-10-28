@@ -44,6 +44,7 @@ class EchoHandler(BaseRequestHandler):
                         while in_post:
                             # The server will continue to receive message from the client until # is received
                             post_msg_str = self.recv_str()
+
                             if post_msg_str[-1] == "#":
                                 in_post = False
                                 self.send_str(self.ok_str) # send OK
