@@ -44,7 +44,6 @@ class EchoHandler(BaseRequestHandler):
                         while in_post:
                             # The server will continue to receive message from the client until # is received
                             post_msg_str = self.recv_str()
-
                             if post_msg_str[-1] == "#":
                                 in_post = False
                                 self.send_str(self.ok_str) # send OK
@@ -52,7 +51,7 @@ class EchoHandler(BaseRequestHandler):
                                 print(f"added: {post_msg_str}")
                                 self.content += "\n" + post_msg_str
                     elif command == 'READ':
-                        # self.send_str('Welcome socket programming')
+                        self.send_str('Welcome socket programming')
                         for line in self.content.strip().split("\n"):
                             self.send_str(f"{line}")
                         self.send_str('#')
