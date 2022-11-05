@@ -11,8 +11,9 @@ Client will mainly handle 3 commands:
 
 	QUIT: when the client has sent the "QUIT" command and received "OK" from the server in response, close the connection socket.
 
-Disclaimer: Base on the server.py provided (unedited), it is not possible to send all message within one string i.e 'POST\nWelcome socket programming\nText#!\nmore text.\n#\n', 
-since the server only adds the post_message only when post_msg_str[-1] != "#". As a result, all the message is send to the server after every user input.
+Disclaimer: Base on the server.py provided (unedited), it is not possible to send all message within one string i.e 'POST\nWelcome socket programming\nText#!\nmore text.\n#\n'
+as suggested by the question. The server only adds the post_message only when post_msg_str[-1] != "#". To fulfil the requirements, all the message is sent to the server after 
+every user input. Other than how the message was delivered, the POST, READ, QUIT commands worked normally.
 
 To compile the code, use pyinstaller to create an executable file. 
 
